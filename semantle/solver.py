@@ -31,7 +31,8 @@ class Solver:
     def recommend(self, max_alternatives: int = 5) -> WordRecommendations:
         if len(self.words) == len(load_word_vectors()):
             return WordRecommendations(
-                recommended="slate", alternatives=["blast", "tapir", "ralph"],
+                recommended="object",
+                alternatives=["person", "place", "action", "adjective"],
             )
 
         words = tuple(self.words.keys())
@@ -44,6 +45,7 @@ class Solver:
             reference=step_info.guess,
             similarity=step_info.similarity,
             word_strings=tuple(self.words.keys()),
+            max_delta=self.uncertainty,
         )
         return self.recommend().recommended
 
@@ -52,7 +54,7 @@ def _word_similarity(guess: str, target: str) -> float:
     vectors = load_word_vectors()
     v1, v2 = vectors[guess], vectors[target]
     out = np.dot(v1, v2)
-    return out.item() * 100
+    return round(out.item() * 100, 2)
 
 
 @lru_cache(maxsize=1024)
