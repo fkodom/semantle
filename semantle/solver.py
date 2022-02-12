@@ -8,7 +8,7 @@ from typing import Dict, Optional, Sequence, Tuple
 import numpy as np
 
 from semantle.data import load_word_vectors
-from semantle.game import SemantleStepInfo
+from semantle.game import SemantleStepInfo, _word_similarity
 
 
 @dataclass
@@ -48,13 +48,6 @@ class Solver:
             max_delta=self.uncertainty,
         )
         return self.recommend().recommended
-
-
-def _word_similarity(guess: str, target: str) -> float:
-    vectors = load_word_vectors()
-    v1, v2 = vectors[guess], vectors[target]
-    out = np.dot(v1, v2)
-    return round(out.item() * 100, 2)
 
 
 @lru_cache(maxsize=1024)

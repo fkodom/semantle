@@ -22,7 +22,7 @@ def _word_similarity(guess: str, target: str) -> float:
     vectors = load_word_vectors()
     v1, v2 = vectors[guess], vectors[target]
     out = np.dot(v1, v2)
-    return out.item() * 100
+    return abs(round(out.item() * 100, 2))
 
 
 def _choose_random_word(seed: Optional[int] = None) -> str:
