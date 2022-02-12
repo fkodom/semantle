@@ -1,1 +1,1 @@
-# nerdle
+# semantle
