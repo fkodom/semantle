@@ -1,4 +1,5 @@
 from __future__ import annotations
+import argparse
 
 from dataclasses import dataclass
 from functools import lru_cache
@@ -23,8 +24,9 @@ class WordRecommendations:
 
 
 class Solver:
-    def __init__(self):
+    def __init__(self, uncertainty: float = 0.01):
         self.words = load_word_vectors()
+        self.uncertainty = uncertainty
 
     def recommend(self, max_alternatives: int = 5) -> WordRecommendations:
         if len(self.words) == len(load_word_vectors()):
@@ -58,7 +60,7 @@ def _get_words_with_similarity(
     reference: str,
     similarity: float,
     word_strings: Optional[Tuple[str, ...]] = None,
-    max_delta: float = 1.0,
+    max_delta: float = 0.01,
 ) -> Dict[str, np.ndarray]:
     all_words = load_word_vectors()
     if word_strings is None:
@@ -72,8 +74,8 @@ def _get_words_with_similarity(
 
 
 class AssistiveSolver(Solver):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, uncertainty: float = 0.01):
+        super().__init__(uncertainty=uncertainty)
         self.step = 1
 
     def _get_input(self, prompt: str) -> str:
@@ -105,7 +107,11 @@ class AssistiveSolver(Solver):
 
 
 def main():
-    AssistiveSolver().solve()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--uncertainty", type=float, default=0.01)
+    args = parser.parse_args()
+
+    AssistiveSolver(uncertainty=args.uncertainty).solve()
 
 
 if __name__ == "__main__":
