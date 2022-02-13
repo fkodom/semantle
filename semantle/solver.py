@@ -3,6 +3,7 @@ import argparse
 
 from dataclasses import dataclass
 from functools import lru_cache
+import sys
 from typing import Dict, Optional, Sequence, Tuple
 
 import numpy as np
@@ -36,6 +37,7 @@ class Solver:
             )
 
         words = tuple(self.words.keys())
+        words = _get_words_closest_to_mean(words, max_words=max_alternatives + 1)
         return WordRecommendations(
             recommended=words[0], alternatives=words[1 : max_alternatives + 1],
         )
@@ -68,6 +70,21 @@ def _get_words_with_similarity(
     }
 
 
+def _get_words_closest_to_mean(
+    word_strings: Tuple[str, ...], max_words: int = sys.maxsize
+) -> Tuple[str, ...]:
+    all_words = load_word_vectors()
+    if word_strings is None:
+        word_strings = tuple(all_words.keys())
+
+    vectors = np.array([all_words[w] for w in word_strings])
+    mean = vectors.mean(axis=0, keepdims=True)
+    dist = np.linalg.norm(vectors - mean, axis=1)
+    indices = np.argsort(dist)[:max_words]
+
+    return tuple(word_strings[i] for i in indices)
+
+
 class AssistiveSolver(Solver):
     def __init__(self, uncertainty: float = 0.01):
         super().__init__(uncertainty=uncertainty)
@@ -78,7 +95,7 @@ class AssistiveSolver(Solver):
 
     def _get_step_info(self) -> SemantleStepInfo:
         guess = self._get_input("Enter your guess: ")
-        similarity = float(self._get_input("What was the similarity?: "))
+        similarity = float(self._get_input("What was the similarity? "))
         success = similarity > 99.99
         return SemantleStepInfo(guess=guess, similarity=similarity, success=success)
 
@@ -97,8 +114,11 @@ class AssistiveSolver(Solver):
                 print("You win! :)")
                 break
             else:
-                self.update(info)
-                self.step += 1
+                try:
+                    self.update(info)
+                    self.step += 1
+                except KeyError:
+                    print("\nWORD NOT RECOGNIZED. Please try again.")
 
 
 def main():

@@ -24,7 +24,7 @@ setup(
     description="A minimal Python library for playing and solving 'Nerdle' problems",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    install_requires=["colorama", "gdown"],
+    install_requires=["numpy", "gdown"],
     extras_require={"test": ["black", "flake8", "isort", "pytest", "pytest-cov"]},
     entry_points={
         "console_scripts": [

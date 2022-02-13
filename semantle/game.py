@@ -52,8 +52,8 @@ class Semantle:
         return self._success
 
     def step(self, guess: str) -> SemantleStepInfo:
-        self._success = guess == self._word
         similarity = _word_similarity(guess, self._word)
+        self._success = guess == self._word
         info = SemantleStepInfo(
             guess=guess, similarity=similarity, success=self._success,
         )
@@ -71,43 +71,10 @@ class Semantle:
         while not self.done:
             print(f"Step {self._step}")
             guess = input("Enter a guess: ").lower().strip()
-            _ = self.step(guess)
-
-
-# class StreamlitSemantle(Semantle):
-#     def _render_step_info_streamlit(self, info: SemantleStepInfo):
-#         import streamlit as st
-
-#         columns = st.columns(5)
-#         letters = info.letters
-
-#         for column, letter in zip(columns, letters):
-#             if letter.text == "_":
-#                 color = "Gray"
-#             elif letter.in_correct_position:
-#                 color = "Green"
-#             elif letter.in_word:
-#                 color = "Yellow"
-#             else:
-#                 color = "Red"
-#             with column:
-#                 st.markdown(
-#                     MARKDOWN_LETTER_TEMPLATE.format(
-#                         color=color, letter=letter.text.upper()
-#                     ),
-#                     unsafe_allow_html=True,
-#                 )
-
-#     def _render_empty_step_streamlit(self):
-#         self._render_step_info_streamlit()
-
-#     def render_streamlit(self):
-#         for step in self.history:
-#             self._render_step_info_streamlit(step)
-
-#         remaining_steps = STEPS_PER_GAME - len(self.history)
-#         for _ in range(remaining_steps):
-#             self._render_step_info_streamlit(info=EMPTY_STEP_INFO)
+            try:
+                _ = self.step(guess)
+            except KeyError:
+                print("\nWORD NOT RECOGNIZED. Please try again.")
 
 
 def main():
